@@ -16,7 +16,7 @@ const UserSignup = () => {
   const context = useContext(UserDataContext);
   if (!context) throw new Error("UserContext is undefined");
 
-  const { setUser } = context;
+  const { user, setUser } = context;
 
   const submitHandler = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -38,7 +38,7 @@ const UserSignup = () => {
         const data = response.data;
         setUser(data.user);
         localStorage.setItem("token", data.token);
-        router.push("/home");
+        router.push("/users/home");
       }
     } catch (err: any) {
       console.error("Signup failed:", err.response?.data || err.message);

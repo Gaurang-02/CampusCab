@@ -29,7 +29,7 @@ const UserLogin = () => {
         const data = response.data
         setUser(data.user)
         localStorage.setItem('token', data.token)
-        router.push('/home')
+        router.push('/users/home')
       }
     } catch (err) {
       console.error('Login failed', err)

@@ -1,13 +1,16 @@
 'use client'
+
 import React, { useEffect } from 'react'
 import axios from 'axios'
 import { useRouter } from 'next/navigation'
+import UserProtectWrapper from '@/components/UserProtectedWrapper'
 
-const UserLogout = () => {
+const UserLogout: React.FC = () => {
   const router = useRouter()
 
   useEffect(() => {
     const token = localStorage.getItem('token')
+
     if (!token) {
       router.push('/login')
       return
@@ -19,16 +22,24 @@ const UserLogout = () => {
           Authorization: `Bearer ${token}`,
         },
       })
-      .then((res) => {
-        if (res.status === 200) {
+      .then((response) => {
+        if (response.status === 200) {
           localStorage.removeItem('token')
           router.push('/login')
         }
       })
-      .catch(() => router.push('/login'))
+      .catch((error) => {
+        console.error('Logout error:', error)
+        localStorage.removeItem('token')
+        router.push('/login')
+      })
   }, [router])
 
-  return <div>Logging out...</div>
+  return (
+    <UserProtectWrapper>
+      <div>Logging out...</div>
+    </UserProtectWrapper>
+  )
 }
 
 export default UserLogout

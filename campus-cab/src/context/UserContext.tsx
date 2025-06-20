@@ -7,6 +7,7 @@ type FullName = {
 }
 
 type User = {
+  _id: any
   email: string
   fullName: FullName
 }

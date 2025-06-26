@@ -61,43 +61,68 @@ const Home: React.FC = () => {
   const waitingForDriverRef = useRef<HTMLDivElement>(null);
 
   const router = useRouter();
-  // const contextSocket = useContext(SocketContext);
-  // const socket = contextSocket?.socket;
+  const contextSocket = useContext(SocketContext);
+  const socket = contextSocket?.socket;
 
   const userContext = useContext(UserDataContext);
   if (!userContext) throw new Error("UserContext is undefined");
   const { user } = userContext;
 
   // Join socket room when user is available
-  // useEffect(() => {
-  //   if (user?._id && socket) {
-  //     socket.emit("join", { userType: "user", userId: user._id });
-  //   }
-  // }, [user, socket]);
+  useEffect(() => {
+    if (user?._id && socket) {
+      socket.emit("join", { userType: "user", userId: user._id });
+    }
+  }, [user, socket]);
 
-  // // Handle ride-related socket events
-  // useEffect(() => {
-  //   if (!socket) return;
+  // Handle ride-related socket events
+  useEffect(() => {
+    if (!socket) return;
 
-  //   const handleRideConfirmed = (rideData: any) => {
-  //     setVehicleFound(false);
-  //     setWaitingForDriver(true);
-  //     setRide(rideData);
-  //   };
+    const handleRideConfirmed = (rideData: any) => {
+      setVehicleFound(false);
+      setWaitingForDriver(true);
+      setRide(rideData);
+    };
 
-  //   const handleRideStarted = () => {
-  //     setWaitingForDriver(false);
-  //     router.push("/riding");
-  //   };
+    const handleRideStarted = () => {
+      setWaitingForDriver(false);
+      router.push("/riding");
+    };
 
-  //   socket.on("ride-confirmed", handleRideConfirmed);
-  //   socket.on("ride-started", handleRideStarted);
+    socket.on("ride-confirmed", handleRideConfirmed);
+    socket.on("ride-started", handleRideStarted);
 
-  //   return () => {
-  //     socket.off("ride-confirmed", handleRideConfirmed);
-  //     socket.off("ride-started", handleRideStarted);
-  //   };
-  // }, [socket]);
+    return () => {
+      socket.off("ride-confirmed", handleRideConfirmed);
+      socket.off("ride-started", handleRideStarted);
+    };
+  }, [socket]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("ride-accepted", (data) => {
+      console.log("Ride Accepted Event Received:", data);
+      setVehicleFound(false);
+      setWaitingForDriver(true);
+      alert(
+        `Driver has accepted your ride from ${data.pickup} to ${data.destination}`
+      );
+    });
+
+    socket.on("ride-rejected", (data) => {
+      console.log("Ride Rejected Event Received:", data);
+      setVehicleFound(false);
+      setWaitingForDriver(false);
+      alert("Driver has rejected your ride.");
+    });
+
+    return () => {
+      socket.off("ride-accepted");
+      socket.off("ride-rejected");
+    };
+  }, [socket]);
 
   const handlePickupChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setPickup(e.target.value);
@@ -181,24 +206,43 @@ const Home: React.FC = () => {
   }, [waitingForDriver]);
 
   const findTrip = async () => {
+    if (!pickup || !destination) {
+      alert("Please select both pickup and destination.");
+      return;
+    }
+
     setVehiclePanel(true);
     setPanelOpen(false);
 
-    const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/rides/get-fare`,
-      {
-        params: { pickup, destination },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
+    try {
+      // 1. Get route from backend
+      // You may want to get the location object from suggestions if needed
+      // For now, we'll skip the directions API call since pickup/destination are strings
+      // If you want to use the directions API, you need to get the lat/lng from the selected suggestion
 
-    setFare(response.data);
+      // 2. Get fare
+      const fareRes = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/rides/get-fare`,
+        {
+          params: {
+            pickup,
+            destination,
+          },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      setFare(fareRes.data);
+    } catch (error) {
+      console.error("Error fetching trip data", error);
+      alert("Failed to fetch trip details.");
+    }
   };
 
   const createRide = async () => {
-    await axios.post(
+    const res = await axios.post(
       `${process.env.NEXT_PUBLIC_API_URL}/rides/create`,
       {
         pickup,
@@ -211,17 +255,36 @@ const Home: React.FC = () => {
         },
       }
     );
+    setRide(res.data);
+    return res.data;
   };
+
+  //   useEffect(() => {
+  //   if (waitingForDriver) {
+  //     axios.post(`${process.env.NEXT_PUBLIC_API_URL}/twilio/call-driver`, {
+  //       phone: "7906969394",
+  //       rideId: ride?._id || "test-ride-id", // Replace with real ID if available
+  //     });
+  //   }
+  // }, [waitingForDriver]);
 
   return (
     <div className="h-screen relative overflow-hidden">
       <img
-        className="w-16 absolute left-5 top-5"
-        src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png"
+        className="w-16 absolute left-10 top-3 z-10"
+        src="/logo_campus.png"
         alt=""
       />
       <div className="absolute inset-0 z-0">
-        <LiveTracking />
+        <LiveTracking
+          pickup={
+            pickupSuggestions.find((s) => s.description === pickup)?.location
+          }
+          destination={
+            destinationSuggestions.find((s) => s.description === destination)
+              ?.location
+          }
+        />
       </div>
       <div className="absolute inset-0 z-10 flex flex-col justify-end pointer-events-none">
         {/* Bottom panel */}
@@ -293,7 +356,6 @@ const Home: React.FC = () => {
           fare={fare}
           setConfirmRidePanel={setConfirmRidePanel}
           setVehiclePanel={setVehiclePanel}
-          
         />
       </div>
 
@@ -309,6 +371,7 @@ const Home: React.FC = () => {
           vehicleType={vehicleType as VehicleType}
           setConfirmRidePanel={setConfirmRidePanel}
           setVehicleFound={setVehicleFound}
+          rideId={ride?._id}
         />
       </div>
 

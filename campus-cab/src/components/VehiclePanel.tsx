@@ -89,7 +89,8 @@ const VehiclePanel: React.FC<Props> = ({
           <h4 className="font-medium text-base">
             UberAuto <span><i className="ri-user-3-fill"></i> {passengerCount}</span>
           </h4>
-          <h5 className="font-medium text-sm">3 mins away</h5>
+          <h5 className="font-medium text-sm">3 mins away</h5> 
+          {/* this should be dynamic */}
           <p className="font-normal text-xs text-gray-600">Affordable Auto rides</p>
         </div>
         <h2 className="text-lg font-semibold">₹{fare.auto ?? '-'}</h2>

@@ -78,3 +78,31 @@ module.exports.getAutoCompleteSuggestions = async (input) => {
         throw error;
     }
 }
+
+module.exports.getRoute = async (pickup, destination) => {
+  if (!pickup || !destination) {
+    throw new Error("Pickup and destination are required");
+  }
+
+  const [pickupLat, pickupLng] = pickup.split(",").map(Number);
+  const [destLat, destLng] = destination.split(",").map(Number);
+
+  if (
+    isNaN(pickupLat) || isNaN(pickupLng) ||
+    isNaN(destLat) || isNaN(destLng)
+  ) {
+    throw new Error("Invalid coordinates format");
+  }
+
+  const url = `https://router.project-osrm.org/route/v1/driving/${pickupLng},${pickupLat};${destLng},${destLat}?overview=full&geometries=geojson`;
+
+  const response = await axios.get(url);
+
+  const coordinates = response?.data?.routes?.[0]?.geometry?.coordinates;
+
+  if (!coordinates) {
+    throw new Error("Invalid route data from OSRM");
+  }
+
+  return coordinates.map(([lng, lat]) => ({ lat, lng }));
+};

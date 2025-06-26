@@ -1,6 +1,7 @@
 const mapService = require("../services/maps.service");
 const { validationResult } = require("express-validator");
 
+
 module.exports.getCoordinates = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -86,3 +87,20 @@ module.exports.getAutoCompleteSuggestions = async (req, res) => {
         
     }
 }
+
+module.exports.getRoute = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  try {
+    const { pickup, destination } = req.query;
+
+    const route = await mapService.getRoute(pickup, destination);
+    return res.status(200).json(route);
+  } catch (error) {
+    console.error("Error fetching route:", error);
+    return res.status(500).json({ error: "Route not found" });
+  }
+};

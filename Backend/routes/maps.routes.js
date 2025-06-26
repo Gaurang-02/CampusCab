@@ -1,5 +1,6 @@
 const express = require("express");
-const router = express.Router();
+const 
+router = express.Router();
 const authMiddleware = require("../middlewares/auth.middleware");
 const mapController = require("../controllers/map.controller");
 const { query } = require("express-validator");
@@ -23,5 +24,12 @@ router.get('/get-suggestions',
   authMiddleware.authUser,
   mapController.getAutoCompleteSuggestions
 );
+
+router.get('/get-route',
+  query('pickup').isString().isLength({ min: 3 }),
+  query('destination').isString().isLength({ min: 3 }),
+  authMiddleware.authUser,
+  mapController.getRoute
+)
 
 module.exports = router;

@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import React from 'react';
 
 type Props = {
@@ -14,7 +15,10 @@ type Props = {
     auto?: number;
   };
   vehicleType: 'car' | 'moto' | 'auto';
+   rideId: string; 
 };
+
+
 
 const ConfirmRide: React.FC<Props> = ({
   setConfirmRidePanel,
@@ -24,7 +28,31 @@ const ConfirmRide: React.FC<Props> = ({
   destination,
   fare,
   vehicleType,
-}) => {
+  rideId
+}) => { 
+
+
+  const callDriver = async () => {
+  try {
+    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/twilio/call-driver`, {
+      phone: '+917906969394',
+      rideId: rideId,
+      pickup: pickup,
+      destination: destination,
+
+    });
+
+    if (response.data.success) {
+      console.log('Call initiated:', response.data.callSid);
+    } else {
+      console.error('Call failed:', response.data.error || 'Unknown error'); // ✅ Safer fallback
+    }
+  } catch (error: any) {
+    console.error('Error making call:', error.message);
+  }
+};
+
+
   return (
     <div>
       <h5
@@ -74,6 +102,7 @@ const ConfirmRide: React.FC<Props> = ({
             setVehicleFound(true);
             setConfirmRidePanel(false);
             createRide();
+            callDriver();
           }}
           className="w-full mt-5 bg-green-600 text-white font-semibold p-2 rounded-lg"
         >

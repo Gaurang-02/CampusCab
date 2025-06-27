@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useContext, FormEvent } from "react";
-import { useRouter } from "next/navigation";
 import { UserDataContext } from "@/context/UserContext";
 import axios from "axios";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { FormEvent, useContext, useState } from "react";
 
 const UserSignup = () => {
   const [firstName, setFirstName] = useState("");
@@ -16,7 +16,7 @@ const UserSignup = () => {
   const context = useContext(UserDataContext);
   if (!context) throw new Error("UserContext is undefined");
 
-  const { user, setUser } = context;
+  const { setUser } = context;
 
   const submitHandler = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -40,8 +40,13 @@ const UserSignup = () => {
         localStorage.setItem("token", data.token);
         router.push("/users/home");
       }
-    } catch (err: any) {
-      console.error("Signup failed:", err.response?.data || err.message);
+    } catch (err: unknown) {
+      if (typeof err === "object" && err !== null && "response" in err) {
+        // @ts-expect-error: err.response may exist
+        console.error("Signup failed:", err.response?.data || (err as Error).message);
+      } else {
+        console.error("Signup failed:", (err as Error).message);
+      }
     }
 
     setFirstName("");

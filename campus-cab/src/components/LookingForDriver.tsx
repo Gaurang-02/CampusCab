@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-type VehicleType = "car" | "moto" | "auto";
+type VehicleType = "auto";
+import Image from "next/image";
 
 type Props = {
   createRide: () => Promise<void>;
@@ -14,12 +15,10 @@ type Props = {
 };
 
 const LookingForDriver: React.FC<Props> = ({
-  createRide,
   pickup,
   destination,
   fare,
   vehicleType,
-  setConfirmRidePanel,
   setVehicleFound,
 }) => {
   return (
@@ -34,7 +33,9 @@ const LookingForDriver: React.FC<Props> = ({
       <h3 className="text-2xl font-semibold mb-5">Looking for a Driver</h3>
 
       <div className="flex gap-2 justify-between flex-col items-center">
-        <img
+        <Image
+          width={220} 
+          height={120}
           className="h-20"
           src="https://www.uber-assets.com/image/upload/f_auto,q_auto:eco,c_fill,h_368,w_552/v1648431773/assets/1d/db8c56-0204-4ce4-81ce-56a11a07fe98/original/Uber_Auto_558x372_pixels_Desktop.png"
           alt="vehicle"

@@ -5,7 +5,6 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import axios from "axios";
 import "remixicon/fonts/remixicon.css";
-import { useRouter } from "next/navigation";
 
 import Image from "next/image";
 
@@ -23,10 +22,10 @@ const LiveTracking = dynamic(() => import("@/components/LiveTracking"), {
 import { SocketContext } from "@/context/SocketContext";
 import { UserDataContext } from "@/context/UserContext";
 type Fare = {
-  [key: string]: any;
+  [key: string]: number;
 };
 
-type VehicleType = "car" | "moto" | "auto";
+type VehicleType = "auto";
 
 const Home: React.FC = () => {
   const [pickup, setPickup] = useState("");
@@ -62,7 +61,6 @@ const Home: React.FC = () => {
   const vehicleFoundRef = useRef<HTMLDivElement>(null);
   const RideConfirmationRef = useRef<HTMLDivElement>(null);
 
-  const router = useRouter();
   const contextSocket = useContext(SocketContext);
   const socket = contextSocket?.socket;
 
@@ -376,7 +374,7 @@ const Home: React.FC = () => {
           vehicleType={vehicleType as VehicleType}
           setVehicleFound={setVehicleFound}
           setConfirmRidePanel={function (
-            value: React.SetStateAction<boolean>
+            // value: React.SetStateAction<boolean>
           ): void {
             throw new Error("Function not implemented.");
           }}

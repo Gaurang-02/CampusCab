@@ -5,7 +5,7 @@ import React from "react";
 type Suggestion = {
   description: string;
   place_id: string;
-  [key: string]: any;
+  [key: string]: string;
 };
 
 type Props = {
@@ -19,8 +19,6 @@ type Props = {
 
 const LocationSearchPanel: React.FC<Props> = ({
   suggestions,
-  setVehiclePanel,
-  setPanelOpen,
   setPickup,
   setDestination,
   activeField,

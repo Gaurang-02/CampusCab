@@ -1,6 +1,7 @@
 'use client';
 
 import axios from 'axios';
+import Image from 'next/image';
 import React from 'react';
 
 type Props = {
@@ -15,10 +16,8 @@ type Props = {
     auto?: number;
   };
   vehicleType: 'car' | 'moto' | 'auto';
-   rideId: string; 
+  rideId: string; 
 };
-
-
 
 const ConfirmRide: React.FC<Props> = ({
   setConfirmRidePanel,
@@ -31,27 +30,28 @@ const ConfirmRide: React.FC<Props> = ({
   rideId
 }) => { 
 
-
   const callDriver = async () => {
-  try {
-    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/twilio/call-driver`, {
-      phone: '+917906969394',
-      rideId: rideId,
-      pickup: pickup,
-      destination: destination,
+    try {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/twilio/call-driver`, {
+        phone: '+917906969394',
+        rideId: rideId,
+        pickup: pickup,
+        destination: destination,
+      });
 
-    });
-
-    if (response.data.success) {
-      console.log('Call initiated:', response.data.callSid);
-    } else {
-      console.error('Call failed:', response.data.error || 'Unknown error'); // ✅ Safer fallback
+      if (response.data.success) {
+        console.log('Call initiated:', response.data.callSid);
+      } else {
+        console.error('Call failed:', response.data.error || 'Unknown error');
+      }
+    } catch (error: unknown) {
+      if (error && typeof error === "object" && "message" in error) {
+        console.error('Error making call:', error.message);
+      } else {
+        console.error('Error making call:', error);
+      }
     }
-  } catch (error: any) {
-    console.error('Error making call:', error.message);
-  }
-};
-
+  };
 
   return (
     <div>
@@ -65,10 +65,12 @@ const ConfirmRide: React.FC<Props> = ({
       <h3 className="text-2xl font-semibold mb-5">Confirm your Ride</h3>
 
       <div className="flex gap-2 justify-between flex-col items-center">
-        <img
+        <Image
           className="h-20"
           src="https://www.uber-assets.com/image/upload/f_auto,q_auto:eco,c_fill,h_368,w_552/v1648431773/assets/1d/db8c56-0204-4ce4-81ce-56a11a07fe98/original/Uber_Auto_558x372_pixels_Desktop.png"
           alt="vehicle"
+          width={220}
+          height={120}
         />
 
         <div className="w-full mt-5">

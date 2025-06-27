@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 
 type Props = {
   setVehiclePanel: (val: boolean) => void;
@@ -80,7 +81,9 @@ const VehiclePanel: React.FC<Props> = ({
         onClick={handleVehicleSelect}
         className="flex border-2 active:border-black mb-2 rounded-xl w-full p-3 items-center justify-between cursor-pointer"
       >
-        <img
+        <Image
+          width={220}
+          height={120}
           className="h-10"
           src="https://www.uber-assets.com/image/upload/f_auto,q_auto:eco,c_fill,h_368,w_552/v1648431773/assets/1d/db8c56-0204-4ce4-81ce-56a11a07fe98/original/Uber_Auto_558x372_pixels_Desktop.png"
           alt="UberAuto"

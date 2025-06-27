@@ -7,13 +7,15 @@ import axios from "axios";
 import "remixicon/fonts/remixicon.css";
 import { useRouter } from "next/navigation";
 
+import Image from "next/image";
+
 import dynamic from "next/dynamic";
 
 import LocationSearchPanel from "@/components/LocationSearchPanel";
 import VehiclePanel from "@/components/VehiclePanel";
 import ConfirmRide from "@/components/ConfirmRide";
 import LookingForDriver from "@/components/LookingForDriver";
-import WaitingForDriver from "@/components/WaitingForDriver";
+import RideConfirmation from "@/components/RideConfirmation";
 const LiveTracking = dynamic(() => import("@/components/LiveTracking"), {
   ssr: false,
   loading: () => <p>Loading map...</p>,
@@ -33,7 +35,7 @@ const Home: React.FC = () => {
   const [vehiclePanel, setVehiclePanel] = useState(false);
   const [confirmRidePanel, setConfirmRidePanel] = useState(false);
   const [vehicleFound, setVehicleFound] = useState(false);
-  const [waitingForDriver, setWaitingForDriver] = useState(false);
+  const [rideConfirmed, setRideConfirmed] = useState(false);
   type Suggestion = {
     description: string;
     place_id: string;
@@ -58,7 +60,7 @@ const Home: React.FC = () => {
   const vehiclePanelRef = useRef<HTMLDivElement>(null);
   const confirmRidePanelRef = useRef<HTMLDivElement>(null);
   const vehicleFoundRef = useRef<HTMLDivElement>(null);
-  const waitingForDriverRef = useRef<HTMLDivElement>(null);
+  const RideConfirmationRef = useRef<HTMLDivElement>(null);
 
   const router = useRouter();
   const contextSocket = useContext(SocketContext);
@@ -68,57 +70,42 @@ const Home: React.FC = () => {
   if (!userContext) throw new Error("UserContext is undefined");
   const { user } = userContext;
 
-  // Join socket room when user is available
   useEffect(() => {
     if (user?._id && socket) {
+      console.log("Joining room with user ID:", user._id);
       socket.emit("join", { userType: "user", userId: user._id });
     }
   }, [user, socket]);
 
-  // Handle ride-related socket events
   useEffect(() => {
-    if (!socket) return;
+    console.log("Socket from context: ", socket);
 
-    const handleRideConfirmed = (rideData: any) => {
-      setVehicleFound(false);
-      setWaitingForDriver(true);
-      setRide(rideData);
-    };
+    if (!socket) {
+      console.log("Socket is not available.");
+      return;
+    }
 
-    const handleRideStarted = () => {
-      setWaitingForDriver(false);
-      router.push("/riding");
-    };
-
-    socket.on("ride-confirmed", handleRideConfirmed);
-    socket.on("ride-started", handleRideStarted);
-
-    return () => {
-      socket.off("ride-confirmed", handleRideConfirmed);
-      socket.off("ride-started", handleRideStarted);
-    };
-  }, [socket]);
-
-  useEffect(() => {
-    if (!socket) return;
+    console.log("Socket listeners are active");
 
     socket.on("ride-accepted", (data) => {
       console.log("Ride Accepted Event Received:", data);
       setVehicleFound(false);
-      setWaitingForDriver(true);
-      alert(
-        `Driver has accepted your ride from ${data.pickup} to ${data.destination}`
-      );
+      setRide(data);
+      setRideConfirmed(true);
+      // alert(
+      //   `Driver has accepted your ride from ${data.pickup} to ${data.destination}`
+      // );
     });
 
     socket.on("ride-rejected", (data) => {
       console.log("Ride Rejected Event Received:", data);
       setVehicleFound(false);
-      setWaitingForDriver(false);
-      alert("Driver has rejected your ride.");
+      setRideConfirmed(false);
+      // alert("Driver has rejected your ride.");
     });
 
     return () => {
+      console.log("Cleaning up socket listeners");
       socket.off("ride-accepted");
       socket.off("ride-rejected");
     };
@@ -198,12 +185,12 @@ const Home: React.FC = () => {
   }, [vehicleFound]);
 
   useGSAP(() => {
-    if (waitingForDriver && waitingForDriverRef.current) {
-      gsap.to(waitingForDriverRef.current, { y: 0 });
-    } else if (waitingForDriverRef.current) {
-      gsap.to(waitingForDriverRef.current, { y: "100%" });
+    if (rideConfirmed && RideConfirmationRef.current) {
+      gsap.to(RideConfirmationRef.current, { y: 0 });
+    } else if (RideConfirmationRef.current) {
+      gsap.to(RideConfirmationRef.current, { y: "100%" });
     }
-  }, [waitingForDriver]);
+  }, [rideConfirmed]);
 
   const findTrip = async () => {
     if (!pickup || !destination) {
@@ -260,20 +247,22 @@ const Home: React.FC = () => {
   };
 
   //   useEffect(() => {
-  //   if (waitingForDriver) {
+  //   if (rideConfirmed) {
   //     axios.post(`${process.env.NEXT_PUBLIC_API_URL}/twilio/call-driver`, {
   //       phone: "7906969394",
   //       rideId: ride?._id || "test-ride-id", // Replace with real ID if available
   //     });
   //   }
-  // }, [waitingForDriver]);
+  // }, [rideConfirmed]);
 
   return (
     <div className="h-screen relative overflow-hidden">
-      <img
-        className="w-16 absolute left-10 top-3 z-10"
+      <Image
+        className="w-24 absolute left-10 top-3 z-10"
         src="/logo_campus.png"
-        alt=""
+        alt="Campus Cab Logo"
+        width={96}
+        height={96}
       />
       <div className="absolute inset-0 z-0">
         <LiveTracking
@@ -324,7 +313,7 @@ const Home: React.FC = () => {
           </form>
           <button
             onClick={findTrip}
-            className="bg-black text-white px-4 py-2 rounded-lg mt-3 w-full"
+            className="bg-black text-white px-4 py-1 rounded-lg mt-3 w-full"
           >
             Find Trip
           </button>
@@ -395,13 +384,14 @@ const Home: React.FC = () => {
       </div>
 
       <div
-        ref={waitingForDriverRef}
+        ref={RideConfirmationRef}
         className="fixed w-full z-10 bottom-0 bg-white px-3 py-6 pt-12"
       >
-        <WaitingForDriver
+        <RideConfirmation
           ride={ride}
-          setVehicleFound={setVehicleFound}
-          setWaitingForDriver={setWaitingForDriver}
+          // setVehicleFound={setVehicleFound}
+          fare={fare[vehicleType as VehicleType]} 
+          setRideConfirmed={setRideConfirmed}
         />
       </div>
     </div>

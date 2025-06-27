@@ -19,9 +19,11 @@ app.use(cookieParser());
 connecToDB();
 
 
-app.get("/", (req, res) => {
-  res.send("hello world");
-});
+// app.get("/", (req, res) => {
+//   res.send("hello world");
+// });
+
+
 
 app.use('/users',userRoutes);
 app.use('/captains', captainRoutes);

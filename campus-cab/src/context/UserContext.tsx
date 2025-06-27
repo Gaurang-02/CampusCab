@@ -1,5 +1,5 @@
 'use client'
-import React, { createContext, useState, ReactNode } from 'react'
+import React, { createContext, ReactNode, useState } from 'react'
 
 type FullName = {
   firstName: string
@@ -21,6 +21,7 @@ export const UserDataContext = createContext<UserContextType | undefined>(undefi
 
 const UserContext = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User>({
+    _id: null, // ✅ You missed this
     email: '',
     fullName: {
       firstName: '',

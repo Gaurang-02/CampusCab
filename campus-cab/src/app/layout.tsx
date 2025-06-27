@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import UserContext from '../context/UserContext'
+import UserContext from '../context/UserContext';
+import SocketProvider from '../context/SocketContext';
 import "./globals.css";
 
 const geistSans = Geist({
@@ -28,7 +29,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <UserContext>{children}</UserContext>
+        {/* Wrap both providers here */}
+        <UserContext>
+          <SocketProvider>
+            {children}
+          </SocketProvider>
+        </UserContext>
       </body>
     </html>
   );

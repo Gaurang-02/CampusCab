@@ -13,39 +13,37 @@ function initializeSocket(server) {
     });
 
     io.on('connection', (socket) => {
-        console.log(`Client connected: ${socket.id}`);
+    console.log(`Client connected: ${socket.id}`);
 
+    // User joins their room
+    socket.on('join', (data) => {
+        const { userId, userType } = data;
 
-        socket.on('join', async (data) => {
-            const { userId, userType } = data;
-
-            if (userType === 'user') {
-                await userModel.findByIdAndUpdate(userId, { socketId: socket.id });
-            } else if (userType === 'captain') {
-                await captainModel.findByIdAndUpdate(userId, { socketId: socket.id });
-            }
-        });
-
-
-        socket.on('update-location-captain', async (data) => {
-            const { userId, location } = data;
-
-            if (!location || !location.ltd || !location.lng) {
-                return socket.emit('error', { message: 'Invalid location data' });
-            }
-
-            await captainModel.findByIdAndUpdate(userId, {
-                location: {
-                    ltd: location.ltd,
-                    lng: location.lng
-                }
-            });
-        });
-
-        socket.on('disconnect', () => {
-            console.log(`Client disconnected: ${socket.id}`);
-        });
+        socket.join(userId);
+        console.log(`User ${userType} with ID ${userId} joined room ${userId}`);
     });
+
+    // Example: when the driver accepts a ride
+    socket.on('driver-accept-ride', (rideData) => {
+        const { userId, pickup, destination } = rideData;
+
+        io.to(userId).emit('ride-accepted', { pickup, destination });
+        console.log(`Sent ride-accepted to user ${userId}`);
+    });
+
+    // Example: when the driver rejects the ride
+    socket.on('driver-reject-ride', (rideData) => {
+        const { userId } = rideData;
+
+        io.to(userId).emit('ride-rejected', { message: 'Ride rejected by driver' });
+        console.log(`Sent ride-rejected to user ${userId}`);
+    });
+
+    socket.on('disconnect', () => {
+        console.log(`Client disconnected: ${socket.id}`);
+    });
+});
+
 }
 
 // ✅ Add this getter

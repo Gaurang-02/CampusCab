@@ -2,7 +2,6 @@ const client = require("../services/twilio");
 const VoiceResponse = require("twilio").twiml.VoiceResponse;
 const { getIO } = require("../socket"); 
 
-// twilio.controller.js
 
 module.exports.callDriver = (req, res) => {
   const { phone, rideId,pickup, destination } = req.body;
@@ -11,7 +10,7 @@ module.exports.callDriver = (req, res) => {
     .create({
       to: phone,
       from: process.env.TWILIO_PHONE_NUMBER,
-      url: `https://0483-2401-4900-5d36-923-28a0-c37d-6e66-e4a5.ngrok-free.app/twilio/ivr?pickup=${encodeURIComponent(pickup)}&destination=${encodeURIComponent(destination)}&rideId=${rideId}`,
+      url: `https://ae38-2401-4900-5d14-9bd3-a027-70a3-1b70-ddc4.ngrok-free.app/twilio/ivr?pickup=${encodeURIComponent(pickup)}&destination=${encodeURIComponent(destination)}&rideId=${rideId}`,
     })
     .then((call) => {
       console.log("Call SID:", call.sid);

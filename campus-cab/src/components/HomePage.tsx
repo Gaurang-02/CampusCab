@@ -38,7 +38,15 @@ const Home: React.FC = () => {
   type Suggestion = {
     description: string;
     place_id: string;
-    [key: string]: any;
+    location: { lat: number; lng: number };
+    [key: string]: unknown;
+  };
+
+  type Ride = {
+    _id: string;
+    pickup: string;
+    destination: string;
+    [key: string]: unknown;
   };
 
   const [pickupSuggestions, setPickupSuggestions] = useState<Suggestion[]>([]);
@@ -52,7 +60,7 @@ const Home: React.FC = () => {
   const [fare, setFare] = useState<Fare>({});
   const [vehicleType, setVehicleType] = useState<VehicleType | null>(null);
 
-  const [ride, setRide] = useState<any>(null);
+  const [ride, setRide] = useState<Ride | null>(null);
 
   const panelRef = useRef<HTMLDivElement>(null);
   const panelCloseRef = useRef<HTMLHeadingElement>(null);
@@ -358,7 +366,6 @@ const Home: React.FC = () => {
           vehicleType={vehicleType as VehicleType}
           setConfirmRidePanel={setConfirmRidePanel}
           setVehicleFound={setVehicleFound}
-          rideId={ride?._id}
         />
       </div>
 
@@ -373,9 +380,8 @@ const Home: React.FC = () => {
           fare={fare}
           vehicleType={vehicleType as VehicleType}
           setVehicleFound={setVehicleFound}
-          setConfirmRidePanel={function (
-            // value: React.SetStateAction<boolean>
-          ): void {
+          setConfirmRidePanel={function (): // value: React.SetStateAction<boolean>
+          void {
             throw new Error("Function not implemented.");
           }}
         />
@@ -388,7 +394,7 @@ const Home: React.FC = () => {
         <RideConfirmation
           ride={ride}
           // setVehicleFound={setVehicleFound}
-          fare={fare[vehicleType as VehicleType]} 
+          fare={fare[vehicleType as VehicleType]}
           setRideConfirmed={setRideConfirmed}
         />
       </div>

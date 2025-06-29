@@ -5,7 +5,8 @@ import React from "react";
 type Suggestion = {
   description: string;
   place_id: string;
-  [key: string]: string;
+  location: { lat: number; lng: number }; // ✅ Add this
+  [key: string]: unknown;
 };
 
 type Props = {

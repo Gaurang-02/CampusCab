@@ -7,7 +7,7 @@ import React from 'react';
 type Props = {
   setConfirmRidePanel: (val: boolean) => void;
   setVehicleFound: (val: boolean) => void;
-  createRide: () => void;
+  createRide: () =>  Promise<{ _id: string }>
   pickup: string;
   destination: string;
   fare: {
@@ -16,7 +16,6 @@ type Props = {
     auto?: number;
   };
   vehicleType: 'car' | 'moto' | 'auto';
-  rideId: string; 
 };
 
 const ConfirmRide: React.FC<Props> = ({
@@ -27,31 +26,33 @@ const ConfirmRide: React.FC<Props> = ({
   destination,
   fare,
   vehicleType,
-  rideId
 }) => { 
 
-  const callDriver = async () => {
-    try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/twilio/call-driver`, {
-        phone: '+917906969394',
-        rideId: rideId,
-        pickup: pickup,
-        destination: destination,
-      });
+  
 
-      if (response.data.success) {
-        console.log('Call initiated:', response.data.callSid);
-      } else {
-        console.error('Call failed:', response.data.error || 'Unknown error');
-      }
-    } catch (error: unknown) {
-      if (error && typeof error === "object" && "message" in error) {
-        console.error('Error making call:', error.message);
-      } else {
-        console.error('Error making call:', error);
-      }
-    }
-  };
+ const handleConfirmRide = async () => {
+  try {
+    // Wait until the ride is created
+    const ride = await createRide();  // Make sure createRide returns ride object
+    console.log('Ride created:', ride);
+
+    // Call the driver now with the correct rideId
+    await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/twilio/call-driver`, {
+      phone: '+917906969394',
+      rideId: ride._id, // Correct rideId from created ride
+      pickup,
+      destination,
+    });
+
+    setVehicleFound(true);
+    setConfirmRidePanel(false);
+
+  } catch (err) {
+    console.error('Error confirming ride:', err);
+    alert('Failed to confirm ride.');
+  }
+};
+
 
   return (
     <div>
@@ -100,12 +101,7 @@ const ConfirmRide: React.FC<Props> = ({
         </div>
 
         <button
-          onClick={() => {
-            setVehicleFound(true);
-            setConfirmRidePanel(false);
-            createRide();
-            callDriver();
-          }}
+          onClick={handleConfirmRide}
           className="w-full mt-5 bg-green-600 text-white font-semibold p-2 rounded-lg"
         >
           Confirm

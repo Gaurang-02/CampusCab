@@ -3,23 +3,31 @@
 import React from "react";
 import Image from "next/image";
 
-type RideDetails = {
-  captain: {
-    fullname: {
-      firstname: string;
-    };
-    vehicle: {
-      plate: string;
-    };
-  };
+// type RideDetails = {
+//   captain: {
+//     fullname: {
+//       firstname: string;
+//     };
+//     vehicle: {
+//       plate: string;
+//     };
+//   };
+//   pickup: string;
+//   destination: string;
+//   otp: string;
+// };
+
+type Ride = {
+  _id: string;
   pickup: string;
   destination: string;
-  otp: string;
+  [key: string]: unknown; 
 };
+
 
 type Props = {
   setRideConfirmed: (val: boolean) => void;
-  ride?: RideDetails;
+  ride?: Ride | null; // ✅ Accept the Ride type you are passing
   fare: number;
 };
 

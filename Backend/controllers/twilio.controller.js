@@ -10,7 +10,7 @@ module.exports.callDriver = (req, res) => {
     .create({
       to: phone,
       from: process.env.TWILIO_PHONE_NUMBER,
-      url: `https://ae38-2401-4900-5d14-9bd3-a027-70a3-1b70-ddc4.ngrok-free.app/twilio/ivr?pickup=${encodeURIComponent(pickup)}&destination=${encodeURIComponent(destination)}&rideId=${rideId}`,
+      url: `${process.env.URL}/twilio/ivr?pickup=${encodeURIComponent(pickup)}&destination=${encodeURIComponent(destination)}&rideId=${rideId}`,
     })
     .then((call) => {
       console.log("Call SID:", call.sid);

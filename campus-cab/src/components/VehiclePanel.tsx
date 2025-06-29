@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Image from 'next/image';
+import React, { useState } from "react";
+import Image from "next/image";
 
 type Props = {
   setVehiclePanel: (val: boolean) => void;
   setConfirmRidePanel: (val: boolean) => void;
-  selectVehicle: (vehicle: 'auto') => void;
+  selectVehicle: (vehicle: "auto") => void;
   fare: {
     auto?: number;
   };
@@ -30,9 +30,9 @@ const VehiclePanel: React.FC<Props> = ({
       return;
     }
 
-    // Passenger count is valid
-    selectVehicle('auto');
-    setConfirmRidePanel(true);
+    selectVehicle("auto");
+    setVehiclePanel(false); // Hide vehicle panel
+    setConfirmRidePanel(true); // Show confirm ride panel
   };
 
   return (
@@ -52,11 +52,11 @@ const VehiclePanel: React.FC<Props> = ({
         </label>
         <input
           type="number"
-          value={passengerCount === 0 ? '' : passengerCount}
+          value={passengerCount === 0 ? "" : passengerCount}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             const input = e.target.value;
 
-            if (input === '') {
+            if (input === "") {
               setPassengerCount(0);
               return;
             }
@@ -82,21 +82,26 @@ const VehiclePanel: React.FC<Props> = ({
         className="flex border-2 active:border-black mb-2 rounded-xl w-full p-3 items-center justify-between cursor-pointer"
       >
         <Image
-          width={220}
-          height={120}
+          width={80}
+          height={100}
           className="h-10"
           src="https://www.uber-assets.com/image/upload/f_auto,q_auto:eco,c_fill,h_368,w_552/v1648431773/assets/1d/db8c56-0204-4ce4-81ce-56a11a07fe98/original/Uber_Auto_558x372_pixels_Desktop.png"
           alt="UberAuto"
         />
         <div className="ml-2 w-1/2">
           <h4 className="font-medium text-base">
-            UberAuto <span><i className="ri-user-3-fill"></i> {passengerCount}</span>
+            UberAuto{" "}
+            <span>
+              <i className="ri-user-3-fill"></i> {passengerCount}
+            </span>
           </h4>
-          <h5 className="font-medium text-sm">3 mins away</h5> 
+          <h5 className="font-medium text-sm">3 mins away</h5>
           {/* this should be dynamic */}
-          <p className="font-normal text-xs text-gray-600">Affordable Auto rides</p>
+          <p className="font-normal text-xs text-gray-600">
+            Affordable Auto rides
+          </p>
         </div>
-        <h2 className="text-lg font-semibold">₹{fare.auto ?? '-'}</h2>
+        <h2 className="text-lg font-semibold">₹{fare.auto ?? "-"}</h2>
       </div>
     </div>
   );

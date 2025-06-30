@@ -13,7 +13,7 @@ const twilioRoutes = require("./routes/twilio.routes");
 
 
 const corsOptions = {
-    origin: "https://your-vercel-app.vercel.app", 
+    origin: "https://campus-cab.vercel.app", 
     credentials: true
 };
 

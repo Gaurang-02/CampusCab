@@ -7,7 +7,7 @@ let io;
 function initializeSocket(server) {
   io = socketIo(server, {
     cors: {
-      origin: "https://campus-cab.vercel.app/", // Use your actual Vercel domain
+      origin: "https://campus-cab.vercel.app", 
       methods: ["GET", "POST"],
       credentials: true,
     },

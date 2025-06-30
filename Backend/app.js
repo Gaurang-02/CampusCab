@@ -11,10 +11,13 @@ const mapsRoutes = require("./routes/maps.routes");
 const rideRoutes = require("./routes/ride.routes");
 const twilioRoutes = require("./routes/twilio.routes");
 
-app.use({
-  origin: ["https://your-vercel-app.vercel.app"],
-  credentials: true,
-});
+
+const corsOptions = {
+    origin: "https://your-vercel-app.vercel.app", 
+    credentials: true
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

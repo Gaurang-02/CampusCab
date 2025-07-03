@@ -4,7 +4,7 @@ import React from 'react'
 
 const Start = () => {
   return (
-    <div className="bg-cover bg-center bg-no-repeat bg-[url(https://img.freepik.com/free-photo/green-traffic-light-rain-cars-drive-by_181624-45198.jpg?ga=GA1.1.1679696074.1749474067&semt=ais_hybrid&w=740)] h-screen flex flex-col justify-end w-full">
+    <div className="bg-cover bg-center bg-no-repeat bg-[url(https://img.freepik.com/free-photo/green-traffic-light-rain-cars-drive-by_181624-45198.jpg?ga=GA1.1.1679696074.1749474067&semt=ais_hybrid&w=740)] min-h-[100svh] flex flex-col justify-end w-full">
       <div className="bg-white py-8 px-6 sm:px-10 md:px-16 rounded-t-3xl shadow-lg">
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold mb-4">
           Get Started with CampusCab

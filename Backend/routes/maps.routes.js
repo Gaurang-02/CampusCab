@@ -32,4 +32,10 @@ router.get('/get-route',
   mapController.getRoute
 )
 
+router.get('/get-place-details',
+  query('placeId').isString().isLength({ min: 3 }),
+  authMiddleware.authUser,
+  mapController.getPlaceDetails
+);
+
 module.exports = router;

@@ -1,5 +1,6 @@
 const mapService = require("../services/maps.service");
 const { validationResult } = require("express-validator");
+const axios = require("axios");
 
 
 module.exports.getCoordinates = async (req, res) => {
@@ -102,5 +103,35 @@ module.exports.getRoute = async (req, res) => {
   } catch (error) {
     console.error("Error fetching route:", error);
     return res.status(500).json({ error: "Route not found" });
+  }
+};
+module.exports.getPlaceDetails = async (req, res) => {
+  const { place_id } = req.query;
+
+  if (!place_id) {
+    return res.status(400).json({ message: 'place_id is required' });
+  }
+
+  try {
+    const response = await axios.get('https://maps.gomaps.pro/maps/api/geocode/json', {
+      params: {
+        place_id,
+        key: process.env.GOOGLE_MAPS_APIS,
+      },
+    });
+
+    console.log('Google API Response:', response.data);
+
+    // ✅ Correct success check
+    if (response.data.status === 'OK' && response.data.results.length > 0) {
+      const location = response.data.results[0].geometry.location;
+      return res.json({ location });
+    } else {
+      return res.status(500).json({ message: 'Google Maps API Error', status: response.data.status });
+    }
+
+  } catch (error) {
+    console.error('Error fetching Google Place Details:', error.message);
+    res.status(500).json({ message: 'Internal Server Error', error: error.message });
   }
 };

@@ -21,11 +21,16 @@ const LiveTracking = dynamic(() => import("@/components/LiveTracking"), {
 });
 import { SocketContext } from "@/context/SocketContext";
 import { UserDataContext } from "@/context/UserContext";
+// import RideSharingWindow from "./RideSharingWindow";
 type Fare = {
   [key: string]: number;
 };
 
 type VehicleType = "auto";
+
+// const [showRideSharingWindow, setShowRideSharingWindow] = useState(false);
+// const [rideSharingMatched, setRideSharingMatched] = useState(false);
+// const [sharedRideData, setSharedRideData] = useState(null);
 
 const Home: React.FC = () => {
   const [pickup, setPickup] = useState("");
@@ -54,6 +59,13 @@ const Home: React.FC = () => {
     Suggestion[]
   >([]);
 
+  type LatLng = { lat: number; lng: number };
+
+  const [pickupLocation, setPickupLocation] = useState<LatLng | null>(null);
+  const [destinationLocation, setDestinationLocation] = useState<LatLng | null>(
+    null
+  );
+
   const [activeField, setActiveField] = useState<
     "pickup" | "destination" | null
   >(null);
@@ -61,6 +73,8 @@ const Home: React.FC = () => {
   const [vehicleType, setVehicleType] = useState<VehicleType | null>(null);
 
   const [ride, setRide] = useState<Ride | null>(null);
+
+  const [showRoute, setShowRoute] = useState(false);
 
   const panelRef = useRef<HTMLDivElement>(null);
   const panelCloseRef = useRef<HTMLHeadingElement>(null);
@@ -199,11 +213,18 @@ const Home: React.FC = () => {
   }, [rideConfirmed]);
 
   const findTrip = async () => {
+    // console.log("Find Trip Clicked 🚀");
+    // console.log("Pickup:", pickup);
+    // console.log("Destination:", destination);
+    // console.log("Pickup Location:", pickupLocation);
+    // console.log("Destination Location:", destinationLocation);
+
     if (!pickup || !destination) {
       alert("Please select both pickup and destination.");
       return;
     }
 
+    setShowRoute(true);
     setVehiclePanel(true);
     setPanelOpen(false);
 
@@ -272,18 +293,13 @@ const Home: React.FC = () => {
       />
       <div className="absolute inset-0 z-0">
         <LiveTracking
-          pickup={
-            pickupSuggestions.find((s) => s.description === pickup)?.location
-          }
-          destination={
-            destinationSuggestions.find((s) => s.description === destination)
-              ?.location
-          }
+          pickup={showRoute ? pickupLocation : undefined}
+          destination={showRoute ? destinationLocation : undefined}
         />
       </div>
       <div className="absolute inset-0 z-10 flex flex-col justify-end pointer-events-none">
         {/* Bottom panel */}
-        <div className="h-[30%] p-6 bg-white relative shadow-lg rounded-t-2xl pointer-events-auto">
+        <div className="min-h-[30%] p-6 bg-white relative shadow-lg rounded-t-2xl pointer-events-auto">
           <h5
             ref={panelCloseRef}
             onClick={() => setPanelOpen(false)}
@@ -319,7 +335,12 @@ const Home: React.FC = () => {
           </form>
           <button
             onClick={findTrip}
-            className="bg-black text-white px-4 py-1 rounded-lg mt-3 w-full"
+            className={`px-4 py-1 rounded-lg mt-3 w-full ${
+              !pickupLocation || !destinationLocation
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-black text-white"
+            }`}
+            disabled={!pickupLocation || !destinationLocation}
           >
             Find Trip
           </button>
@@ -337,6 +358,8 @@ const Home: React.FC = () => {
             setVehiclePanel={setVehiclePanel}
             setPickup={setPickup}
             setDestination={setDestination}
+            setPickupLocation={setPickupLocation} 
+            setDestinationLocation={setDestinationLocation} 
             activeField={activeField}
           />
         </div>
@@ -380,12 +403,33 @@ const Home: React.FC = () => {
           fare={fare}
           vehicleType={vehicleType as VehicleType}
           setVehicleFound={setVehicleFound}
-          setConfirmRidePanel={function (): // value: React.SetStateAction<boolean>
+          setConfirmRidePanel={function ():
           void {
             throw new Error("Function not implemented.");
           }}
         />
       </div>
+
+      {/* <div
+        ref={RideSharingWindowRef}
+        className={`fixed w-full z-10 bottom-0 ${
+          showRideSharingWindow ? "" : "translate-y-full"
+        } bg-white px-3 py-6 pt-12`}
+      >
+        <RideSharingWindow
+          countdown={5 * 60} // 5 minutes
+          onTimeout={() => {
+            // Timeout handler: proceed with solo ride
+            setShowRideSharingWindow(false);
+            // You can optionally show a message that no ride was found
+          } }
+          onMatchFound={(matchedUser) => {
+            // Match found: proceed to ride share confirmation
+            setSharedRideData(matchedUser);
+            setShowRideSharingWindow(false);
+            setRideSharingMatched(true);
+          } } socket={undefined}        />
+      </div> */}
 
       <div
         ref={RideConfirmationRef}

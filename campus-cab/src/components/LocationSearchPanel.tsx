@@ -1,11 +1,14 @@
 "use client";
 
+import axios from "axios";
 import React from "react";
+
+type LatLng = { lat: number; lng: number };
 
 type Suggestion = {
   description: string;
   place_id: string;
-  location: { lat: number; lng: number }; // ✅ Add this
+  location: LatLng; 
   [key: string]: unknown;
 };
 
@@ -15,6 +18,8 @@ type Props = {
   setPanelOpen: (val: boolean) => void;
   setPickup: (val: string) => void;
   setDestination: (val: string) => void;
+  setPickupLocation: React.Dispatch<React.SetStateAction<LatLng | null>>;
+  setDestinationLocation: React.Dispatch<React.SetStateAction<LatLng | null>>;
   activeField: "pickup" | "destination" | null;
 };
 
@@ -22,17 +27,49 @@ const LocationSearchPanel: React.FC<Props> = ({
   suggestions,
   setPickup,
   setDestination,
+  setPickupLocation,
+  setDestinationLocation,
+  setPanelOpen, 
   activeField,
 }) => {
-  const handleSuggestionClick = (suggestion: Suggestion) => {
+  const handleSuggestionClick = async (suggestion: Suggestion) => {
+  // console.log("🖱️ Suggestion Clicked:", suggestion);
+  // console.log("Sending Place ID:", suggestion.place_id);
+  if (!suggestion.place_id) {
+    console.error("No place_id found in suggestion", suggestion);
+    alert("Invalid suggestion. Please try again.");
+    return;
+  }
+
+  try {
+    const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/maps/get-place-details`, {
+      params: { place_id: suggestion.place_id },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+
+    const location = res.data.location;
+
     if (activeField === "pickup") {
-      setPickup(suggestion.description); // ✅ Use description
+      setPickup(suggestion.description);
+      setPickupLocation(location);
+      // console.log("🚕 Pickup Location Set:", location);
     } else if (activeField === "destination") {
       setDestination(suggestion.description);
+      setDestinationLocation(location);
+      // console.log("🎯 Destination Location Set:", location);
     }
-    // setVehiclePanel(true);
+
     // setPanelOpen(false);
-  };
+  } catch (error) {
+    console.error("Error fetching place details", error);
+    alert("Failed to fetch location details. Please try again.");
+  }
+};
+
+
+
 
   return (
     <div>
@@ -46,7 +83,7 @@ const LocationSearchPanel: React.FC<Props> = ({
             <i className="ri-map-pin-fill"></i>
           </h2>
           <h4 className="font-medium">{elem.description}</h4>{" "}
-          {/* ✅ FIX HERE */}
+          
         </div>
       ))}
     </div>

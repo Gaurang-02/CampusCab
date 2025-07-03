@@ -25,8 +25,8 @@ L.Icon.Default.mergeOptions({
 type LatLng = { lat: number; lng: number };
 
 type Props = {
-  pickup?: LatLng;
-  destination?: LatLng;
+  pickup?: LatLng | null;
+  destination?: LatLng | null;
 };
 
 const RecenterMap = ({ position }: { position: LatLng }) => {
@@ -52,23 +52,43 @@ const LiveTracking: React.FC<Props> = ({ pickup, destination }) => {
   const [currentPosition, setCurrentPosition] = useState<LatLng | null>(null);
   const [routePath, setRoutePath] = useState<LatLng[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isRouteLoading, setIsRouteLoading] = useState(false);
 
-  useEffect(() => {
-    if (pickup && destination) {
-      axios
-        .get(`${process.env.NEXT_PUBLIC_API_URL}/maps/get-route`, {
-          params: {
-            origin: `${pickup.lat},${pickup.lng}`,
-            destination: `${destination.lat},${destination.lng}`,
-          },
-        })
-        .then((res) => {
-          setRoutePath(res.data);
-          console.log("Route received:", res.data);
-        })
-        .catch(() => setError("Could not fetch route"));
-    }
-  }, [pickup, destination]);
+ useEffect(() => {
+  if (pickup && destination) {
+    setIsRouteLoading(true);
+    // console.log("📍 Pickup passed to API: ", pickup);
+    // console.log("📍 Destination passed to API: ", destination);
+    // console.log(
+    //   "🌐 API URL:",
+    //   `${process.env.NEXT_PUBLIC_API_URL}/maps/get-route?pickup=${pickup.lat},${pickup.lng}&destination=${destination.lat},${destination.lng}`
+    // );
+
+    const token = localStorage.getItem('token'); 
+
+    axios
+      .get(`${process.env.NEXT_PUBLIC_API_URL}/maps/get-route`, {
+        params: {
+          pickup: `${pickup.lat},${pickup.lng}`,
+          destination: `${destination.lat},${destination.lng}`,
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => {
+        setRoutePath(res.data);
+        console.log("✅ Route received:", res.data);
+      })
+      .catch((err) => {
+        console.error('❌ Error fetching route:', err);
+        setError("Could not fetch route");
+      })
+      .finally(() => setIsRouteLoading(false));
+  }
+}, [pickup, destination]);
+
+
 
   useEffect(() => {
     if (typeof window !== "undefined" && navigator.geolocation) {
@@ -103,6 +123,12 @@ const LiveTracking: React.FC<Props> = ({ pickup, destination }) => {
 
   return (
     <div style={{ width: "100%", height: "100%" }}>
+      {isRouteLoading && (
+        <div className="absolute top-4 right-4 bg-white p-2 rounded shadow z-[1000]">
+          Fetching route...
+        </div>
+      )}
+
       <MapContainer
         center={[currentPosition.lat, currentPosition.lng]}
         zoom={15}

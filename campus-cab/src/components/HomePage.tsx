@@ -354,7 +354,6 @@ const Home: React.FC = () => {
                 ? pickupSuggestions
                 : destinationSuggestions
             }
-            setPanelOpen={setPanelOpen}
             setVehiclePanel={setVehiclePanel}
             setPickup={setPickup}
             setDestination={setDestination}

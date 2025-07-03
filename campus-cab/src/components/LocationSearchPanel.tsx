@@ -15,7 +15,6 @@ type Suggestion = {
 type Props = {
   suggestions: Suggestion[];
   setVehiclePanel: (val: boolean) => void;
-  setPanelOpen: (val: boolean) => void;
   setPickup: (val: string) => void;
   setDestination: (val: string) => void;
   setPickupLocation: React.Dispatch<React.SetStateAction<LatLng | null>>;
@@ -29,7 +28,6 @@ const LocationSearchPanel: React.FC<Props> = ({
   setDestination,
   setPickupLocation,
   setDestinationLocation,
-  setPanelOpen, 
   activeField,
 }) => {
   const handleSuggestionClick = async (suggestion: Suggestion) => {

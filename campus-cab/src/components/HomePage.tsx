@@ -283,7 +283,7 @@ const Home: React.FC = () => {
   // }, [rideConfirmed]);
 
   return (
-    <div className="h-screen relative overflow-hidden">
+    <div className="h-[100dvh] relative overflow-hidden">
       <Image
         className="w-24 absolute left-10 top-3 z-10"
         src="/logo_campus.png"

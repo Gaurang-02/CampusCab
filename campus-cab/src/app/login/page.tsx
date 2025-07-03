@@ -46,7 +46,7 @@ const UserLogin = () => {
   };
 
   return (
-    <div className="bg-cover bg-center bg-[url('https://img.freepik.com/free-photo/green-traffic-light-rain-cars-drive-by_181624-45198.jpg?ga=GA1.1.1679696074.1749474067&semt=ais_hybrid&w=740')] min-h-screen flex flex-col justify-end">
+    <div className="bg-cover bg-center bg-[url('https://img.freepik.com/free-photo/green-traffic-light-rain-cars-drive-by_181624-45198.jpg?ga=GA1.1.1679696074.1749474067&semt=ais_hybrid&w=740')] min-h-[100svh] flex flex-col justify-end">
       <div className="bg-white rounded-t-3xl px-6 py-8 sm:px-10 sm:py-10 shadow-2xl w-full">
         <form onSubmit={submitHandler} className="max-w-md mx-auto">
           <h2 className="text-2xl font-bold text-center mb-6">
